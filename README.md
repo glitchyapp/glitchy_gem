@@ -8,4 +8,4 @@ GlitchyGem.configure do |config|
 end
 ```
 
-This Gem with work with Rails 2.3.x and up
+This gem will work with Rails 2.3.x and up
