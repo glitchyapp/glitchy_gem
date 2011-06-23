@@ -19,7 +19,7 @@ module GlitchyGem
     end
 
     def send
-      return unless GlitchyGem.environments.include?(GlitchGem.environment)
+      return unless GlitchyGem.environments.include?(GlitchyGem.environment)
       begin
         @http.request(@request)
       rescue Errno::ECONNREFUSED => e
