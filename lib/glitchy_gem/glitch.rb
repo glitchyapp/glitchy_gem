@@ -2,6 +2,7 @@ module GlitchyGem
   class Glitch
     attr_reader :exception
     def initialize(e, options = {})
+      return if GlitchyGem.ignore_exceptions.include?(e.class.to_s)
       @rack_env = options[:rack_env] || {}
       @exception = e
 
