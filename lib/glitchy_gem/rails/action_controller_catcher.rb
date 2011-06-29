@@ -10,7 +10,7 @@ module GlitchyGem
       private
 
       def rescue_action_with_glitchy(exception)
-        error_id = send_glitch(exception, req_data)
+        send_glitch(exception, req_data)
         rescue_action_without_glitchy(exception)
       end
 
