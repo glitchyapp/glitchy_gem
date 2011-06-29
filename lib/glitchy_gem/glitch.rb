@@ -2,7 +2,6 @@ module GlitchyGem
   class Glitch
     attr_reader :exception
     def initialize(e, options = {})
-      return if GlitchyGem.ignore_exceptions.include?(e.class.to_s)
       @rack_env = options[:rack_env] || {}
       @exception = e
 
@@ -21,6 +20,7 @@ module GlitchyGem
 
     def send
       return unless GlitchyGem.environments.include?(GlitchyGem.environment)
+      return if GlitchyGem.ignore_exceptions.include?(self.exception.class.to_s)
       begin
         @http.request(@request)
       rescue Errno::ECONNREFUSED => e
