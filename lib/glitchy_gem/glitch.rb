@@ -11,6 +11,8 @@ module GlitchyGem
       action = options[:action] || params['action']
       session = options[:session] || @rack_env['rack.session']
 
+      params = filter_params(params)
+
       @uri = URI.parse("http://#{GlitchyGem.url}/glitches?auth_token=#{GlitchyGem.api_key}")
       @http = Net::HTTP.new(@uri.host, @uri.port)
       @request = Net::HTTP::Post.new(@uri.request_uri)
@@ -29,6 +31,16 @@ module GlitchyGem
     end
 
     private
+
+    def filter_params(params)
+      filter_fields = GlitchyGem.filter_params.map(&:upcase)
+      filtered_params = {}
+      params.each_pair do |k,v|
+        filtered_params[k] = filter_fields.include?(k.upcase) ? "[FILTERED]" : v
+      end
+
+      filtered_params
+    end
 
     def rack_env(method)
       rack_request.send(method) if rack_request
