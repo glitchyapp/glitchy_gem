@@ -36,6 +36,9 @@ module GlitchyGem
       filter_fields = GlitchyGem.filter_params.map(&:upcase)
       filtered_params = {}
       params.each_pair do |k,v|
+        if v.class.to_s == "Hash"
+          v = filter_params(v)
+        end
         filtered_params[k] = filter_fields.include?(k.upcase) ? "[FILTERED]" : v
       end
 
