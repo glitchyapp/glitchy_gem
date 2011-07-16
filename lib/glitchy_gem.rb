@@ -5,19 +5,24 @@ require 'glitchy_gem/railtie' if defined?(Rails::Railtie)
 
 module GlitchyGem
   class << self
-    attr_accessor :api_key, :environment, :logger, :url, :environments, :ignore_exceptions, :filter_params
+    # These are the attributes a user can set in their config file.
+    attr_accessor :api_key, :environment, :logger, :url, :environments, :filter_params, :filter_exceptions
     def configure
-      self.filter_params = ["password", "password_confirmation"]
+      self.filter_exceptions ||= [
+        lambda{|glitch| 
+          [
+            'ActiveRecord::RecordNotFound',
+            'ActionController::RoutingError',
+            'ActionController::InvalidAuthenticityToken',
+            'ActionController::UnknownAction'
+          ].include?(glitch.exception.class)
+        }
+      ]
+
+      self.filter_params ||= ["password", "password_confirmation"]
+      self.environments ||= ["production"]
 
       yield(self)
-
-      self.environments ||= ["production"]
-      self.ignore_exceptions ||= [
-        'ActiveRecord::RecordNotFound',
-        'ActionController::RoutingError',
-        'ActionController::InvalidAuthenticityToken',
-        'ActionController::UnknownAction'
-      ]
     end
   end
 end

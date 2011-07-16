@@ -20,7 +20,8 @@ module GlitchyGem
           :session          => session.to_hash,
           :controller       => params[:controller],
           :action           => params[:action],
-          :url              => "#{request.protocol}#{request.host}:#{request.port}#{request.request_uri}"
+          :url              => "#{request.protocol}#{request.host}:#{request.port}#{request.request_uri}",
+          :cgi_data         => request.env
         }
       end
 

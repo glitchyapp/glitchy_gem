@@ -1,6 +1,6 @@
 module GlitchyGem
   class Glitch
-    attr_reader :exception
+    attr_reader :exception, :cgi_data
     def initialize(e, options = {})
       @rack_env = options[:rack_env] || {}
       @exception = e
@@ -10,6 +10,7 @@ module GlitchyGem
       controller = options[:controller] || params['controller']
       action = options[:action] || params['action']
       session = options[:session] || @rack_env['rack.session']
+      @cgi_data = options[:cgi_data] || @rack_env
 
       params = filter_params(params)
 
@@ -17,12 +18,20 @@ module GlitchyGem
       @http = Net::HTTP.new(@uri.host, @uri.port)
       @request = Net::HTTP::Post.new(@uri.request_uri)
       @request["Content-Type"] = "application/json"
-      @request.body = { :glitch => e.to_hash.merge({ :url => url, :params => params, :controller => controller, :action => action, :session => session, :environment => GlitchyGem.environment }) }.to_json
+      @request.body = {
+        :glitch => e.to_hash.merge({
+          :url => url,
+          :params => params,
+          :controller => controller,
+          :action => action,
+          :session => session,
+          :environment => GlitchyGem.environment
+        })
+      }.to_json
     end
 
     def send
-      return unless GlitchyGem.environments.include?(GlitchyGem.environment)
-      return if GlitchyGem.ignore_exceptions.include?(self.exception.class.to_s)
+      return if ignore?
       begin
         @http.request(@request)
       rescue Errno::ECONNREFUSED => e
@@ -31,6 +40,11 @@ module GlitchyGem
     end
 
     private
+
+    def ignore?
+      !GlitchyGem.environments.include?(GlitchyGem.environment) ||
+        GlitchyGem.filter_exceptions.any? {|filter| filter.call(self) }
+    end
 
     def filter_params(params)
       filter_fields = GlitchyGem.filter_params.map(&:upcase)
