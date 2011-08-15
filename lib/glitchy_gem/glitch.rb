@@ -6,6 +6,7 @@ module GlitchyGem
       @exception = e
 
       params = options[:params] || @rack_env['action_dispatch.request.parameters'] || rack_env(:params)
+      default_params.merge(params)
       url = options[:url] || rack_env(:url)
       controller = options[:controller] || params['controller']
       action = options[:action] || params['action']
@@ -61,10 +62,19 @@ module GlitchyGem
 
     def rack_env(method)
       rack_request.send(method) if rack_request
+    rescue
+      nil
     end
 
     def rack_request
       @rack_request ||= ::Rack::Request.new(@rack_env)
+    end
+
+    def default_params
+      {
+        'controller' => '',
+        'action' => ''
+      }
     end
   end
 end
