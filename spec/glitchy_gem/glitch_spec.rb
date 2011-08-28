@@ -1,8 +1,6 @@
 require 'spec_helper'
 
 describe GlitchyGem::Glitch do
-  subject { GlitchyGem::Glitch }
-
   before(:each) do
     GlitchyGem.configure do |config|
       config.environments = ["test"]
@@ -12,6 +10,6 @@ describe GlitchyGem::Glitch do
   end
 
   it "should contain the exception" do
-    subject.new(@stub_exception).exception.should == @stub_exception
+    described_class.new(@stub_exception).exception.should == @stub_exception
   end
 end
