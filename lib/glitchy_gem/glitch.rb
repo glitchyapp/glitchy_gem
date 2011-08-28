@@ -5,7 +5,7 @@ module GlitchyGem
       @rack_env = options[:rack_env] || {}
       @exception = e
 
-      params = options[:params] || @rack_env['action_dispatch.request.parameters'] || rack_env(:params)
+      params = options[:params] || @rack_env['action_dispatch.request.parameters'] || rack_env(:params) || {}
       params = default_params.merge(params)
       url = options[:url] || rack_env(:url)
       controller = options[:controller] || params['controller']
