@@ -9,3 +9,5 @@ end
 ```
 
 This gem will work with Rails 2.3.x and up
+
+[![Build Status](https://secure.travis-ci.org/trobrock/glitchy_gem.png)](http://travis-ci.org/trobrock/glitchy_gem])
