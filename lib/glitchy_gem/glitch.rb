@@ -1,19 +1,17 @@
 module GlitchyGem
   class Glitch
-    attr_reader :exception, :cgi_data
+    attr_reader :exception, :controller, :action, :url, :session, :params
     def initialize(e, options = {})
       @rack_env = options[:rack_env] || {}
       @exception = e
 
-      params = options[:params] || @rack_env['action_dispatch.request.parameters'] || rack_env(:params) || {}
-      params = default_params.merge(params)
-      url = options[:url] || rack_env(:url)
-      controller = options[:controller] || params['controller']
-      action = options[:action] || params['action']
-      session = options[:session] || @rack_env['rack.session']
-      @cgi_data = options[:cgi_data] || @rack_env
+      @params = options[:params] || @rack_env['action_dispatch.request.parameters'] || rack_env(:params) || {}
+      @url = options[:url] || rack_env(:url)
+      @controller = options[:controller] || params['controller']
+      @action = options[:action] || params['action']
+      @session = options[:session] || @rack_env['rack.session']
 
-      params = filter_params(params)
+      @params = filter_params(@params)
 
       @uri = URI.parse("http://#{GlitchyGem.url}/glitches?auth_token=#{GlitchyGem.api_key}")
       @http = Net::HTTP.new(@uri.host, @uri.port)
@@ -21,11 +19,11 @@ module GlitchyGem
       @request["Content-Type"] = "application/json"
       @request.body = {
         :glitch => e.to_hash.merge({
-          :url => url,
-          :params => params,
-          :controller => controller,
-          :action => action,
-          :session => session,
+          :url => @url,
+          :params => @params,
+          :controller => @controller,
+          :action => @action,
+          :session => @session,
           :environment => GlitchyGem.environment
         })
       }.to_json
@@ -68,13 +66,6 @@ module GlitchyGem
 
     def rack_request
       @rack_request ||= ::Rack::Request.new(@rack_env)
-    end
-
-    def default_params
-      {
-        'controller' => '',
-        'action' => ''
-      }
     end
   end
 end

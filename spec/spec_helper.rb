@@ -5,6 +5,7 @@ require 'rubygems'
 require 'rspec'
 require 'bundler/setup'
 require 'json'
+require 'rack'
 
 require 'glitchy_gem'
 

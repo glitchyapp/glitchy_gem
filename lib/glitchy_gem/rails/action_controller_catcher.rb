@@ -16,12 +16,12 @@ module GlitchyGem
 
       def req_data
         {
-          :params           => params.to_hash,
-          :session          => session.to_hash,
-          :controller       => params[:controller],
-          :action           => params[:action],
-          :url              => "#{request.protocol}#{request.host}:#{request.port}#{request.request_uri}",
-          :cgi_data         => request.env
+          :params     => params.to_hash,
+          :session    => session.to_hash,
+          :controller => params[:controller],
+          :action     => params[:action],
+          :url        => "#{request.protocol}#{request.host}:#{request.port}#{request.request_uri}",
+          :rack_env   => request.env
         }
       end
 
