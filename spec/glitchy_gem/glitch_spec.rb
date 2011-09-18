@@ -104,6 +104,29 @@ describe GlitchyGem::Glitch do
         glitch = described_class.new(@stub_exception, :rack_env => env)
         glitch.params.should == @params
       end
+
+      it "should filter out fields from the params" do
+        GlitchyGem.filter_params = ["password", "password_confirmation"]
+        params = {
+          "password" => "somepassword",
+          "password_confirmation" => "somepassword",
+          "controller" => "dashboard"
+        }
+        filtered_params = {
+          "password" => "[FILTERED]",
+          "password_confirmation" => "[FILTERED]",
+          "controller" => "dashboard"
+        }
+        glitch = described_class.new(@stub_exception, :params => params)
+        glitch.params.should == filtered_params
+      end
+    end
+
+    context "connection" do
+      it "should set up an http connection to glitchyapp.com" do
+        glitch = described_class.new(@stub_exception)
+        glitch.connection.address.should == "glitchyapp.com"
+      end
     end
   end
 end

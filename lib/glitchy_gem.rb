@@ -21,6 +21,7 @@ module GlitchyGem
 
       self.filter_params ||= ["password", "password_confirmation"]
       self.environments ||= ["production"]
+      self.url ||= "glitchyapp.com"
 
       yield(self)
     end

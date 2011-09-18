@@ -5,17 +5,13 @@ module GlitchyGem
       @rack_env = options[:rack_env] || {}
       @exception = e
 
-      @params = options[:params] || @rack_env['action_dispatch.request.parameters'] || rack_env(:params) || {}
-      @url = options[:url] || rack_env(:url)
-      @controller = options[:controller] || params['controller']
-      @action = options[:action] || params['action']
-      @session = options[:session] || @rack_env['rack.session']
+      @params = get_filtered_params(options[:params])
+      @url = get_url(options[:url])
+      @controller = get_controller(options[:controller])
+      @action = get_action(options[:action])
+      @session = get_session(options[:session])
 
-      @params = filter_params(@params)
-
-      @uri = URI.parse("http://#{GlitchyGem.url}/glitches?auth_token=#{GlitchyGem.api_key}")
-      @http = Net::HTTP.new(@uri.host, @uri.port)
-      @request = Net::HTTP::Post.new(@uri.request_uri)
+      @request = Net::HTTP::Post.new(uri.request_uri)
       @request["Content-Type"] = "application/json"
       @request.body = {
         :glitch => e.to_hash.merge({
@@ -29,16 +25,49 @@ module GlitchyGem
       }.to_json
     end
 
+    def connection
+      return @connection if @connection
+      @connection = Net::HTTP.new(uri.host, uri.port)
+    end
+
     def send
       return if ignore?
       begin
-        @http.request(@request)
+        connection.request(@request)
       rescue Errno::ECONNREFUSED => e
         GlitchyGem.logger.info "Failed to connect to GlitchyApp. Could not notify about the exception #{self.exception.to_hash.inspect}"
       end
     end
 
     private
+
+    def uri
+      @uri ||= URI.parse("http://#{GlitchyGem.url}/glitches?auth_token=#{GlitchyGem.api_key}")
+    end
+
+    def get_filtered_params(params_from_options)
+      filter_params(get_params(params_from_options))
+    end
+
+    def get_params(params_from_options)
+      params_from_options || @rack_env['action_dispatch.request.parameters'] || rack_env(:params) || {}
+    end
+
+    def get_url(url_from_options)
+      url_from_options || rack_env(:url)
+    end
+
+    def get_controller(controller_from_options)
+      controller_from_options || @params['controller']
+    end
+
+    def get_action(action_from_options)
+      action_from_options || params['action']
+    end
+
+    def get_session(session_from_options)
+      session_from_options || @rack_env['rack.session']
+    end
 
     def ignore?
       !GlitchyGem.environments.include?(GlitchyGem.environment) ||
